@@ -1,35 +1,36 @@
-// TODO 3: Import data students dari folder data/students.js
-// code here
-const { request } = require("express");
-const students = require("../data/students")
+// import model student
+const Student = require("../models/Students")
 
 class StudentController {
-    index(req, res) {
+    async index(req, res) {
         // TODO 4: Tampilkan data students
-        // code here
+        const students = await Student.all();
 
         const data = {
             message: "Menampilkan data student",
             data: students
         };
 
-        res.json(data);
+        res.status(200).json(data);
     }
 
-    store(req, res) {
-        const { nama } = req.body;
+    async store(req, res) {
+        /**
+         * TODO 2: memanggil method create.
+         * Method create mengembalikan data yang baru diinsert.
+         * Mengembalikan response dalam bentuk json.
+         */
 
-        // TODO 5: Tambahkan data students
-        // code here
-        students.push(nama);
-
+        const { nama, nim, email, jurusan } = req.body
+        const students = await Student.create(req.body);
         const data = {
-            message: `Menambahkan data students : ${nama}`,
+            message: "Menambahkan data student",
             data: students
         };
 
-        res.json(data);
+        res.status(201).json(data);
     }
+
 
     update(req, res) {
         const { id } = req.params;
