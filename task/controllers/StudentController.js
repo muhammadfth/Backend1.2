@@ -3,15 +3,22 @@ const Student = require("../models/Students")
 
 class StudentController {
     async index(req, res) {
-        // TODO 4: Tampilkan data students
         const students = await Student.all();
+        // data array lebih dari 0
+        if (students.length>0){
+            const data = {
+                message: "Menampilkan data student",
+                data:students
+            };
 
-        const data = {
-            message: "Menampilkan data student",
-            data: students
-        };
-
-        res.status(200).json(data);
+            res.status(200).json(data);
+        }
+        else{
+            const data = {
+                massage : "Students is empety",
+            };
+            res.status(200).json(data);
+        }
     }
 
     async store(req, res) {
@@ -21,8 +28,20 @@ class StudentController {
          * Mengembalikan response dalam bentuk json.
          */
 
+        // destructing object req.boyd
         const { nama, nim, email, jurusan } = req.body
+
+        //jika data unfined maka kirim response error
+        if (!nama || !nim || !email || !jurusan){
+            const data = {
+                message : "Semua data harus dikirim"
+            };
+
+            return res.status(422).json(data);
+        }
+        //else
         const students = await Student.create(req.body);
+        
         const data = {
             message: "Menambahkan data student",
             data: students
@@ -32,36 +51,95 @@ class StudentController {
     }
 
 
-    update(req, res) {
+    async update(req, res) {
+        /**
+         * check id students
+         * jika ada, lakukan update
+         * jika tidak, kirim data tidak ada
+         */
         const { id } = req.params;
-        const { nama } = req.body;
 
-        // TODO 6: Update data students
-        // code here
-        students[id] = nama;
+        const students = await Student.find(id);
 
-        const data = {
-            message: `Mengedit data students id ${id}, nama ${nama}`,
-            data: students
-        };
+        if (students) {
+            // update data
+            const studentUpdated = await Student.update(id, req.body);
+            const data = {
+                message: "Mengupdate data student",
+                data: studentUpdated,
+            };
 
-        res.json(data);
+            res.status(200).json(data);
+        }
+        else {
+            // kirim data tidak ada
+            const data = {
+                message: "Data tidak ada",
+            };
+
+            res.status(404).json(data);
+        }
+
+
+
     }
 
-    destroy(req, res) {
+    async destroy(req, res) {
         const { id } = req.params;
 
-        // TODO 7: Hapus data students
-        // code here
+        /**
+         * cari id
+         * jika ada, hapus data
+         * jika tidak, kirim data tidak ada
+         */
 
-        students.splice(id, 1);
+        const student = await Student.find(id);
 
-        const data = {
-            message: `Menghapus data students ${id}`,
-            data: students
-        };
+        if (student) {
+            // hapus data
+            await Student.delete(id);
+            const data = {
+                message: "Menghapus data student",
+            };
 
-        res.json(data);
+            res.status(200).json(data);
+        }
+        else {
+            // data tidak ada
+            const data = {
+                message: "Data tidak ada",
+            };
+
+            res.status(404).json(data);
+        }
+    }
+
+    async show(req, res) {
+        /**
+         * cari id
+         * jika ada, kirim datanya
+         * jika tidak, kirim data tidak ada
+         */
+        const { id } = req.params;
+
+        const student = await Student.find(id);
+
+        if (student) {
+            const data = {
+                message: "Menampilkan detail data student",
+                data: student,
+            };
+
+            res.status(200).json(data);
+        }
+        else {
+            const data = {
+                message: "Data tidak ada",
+            };
+
+            res.status(404).json(data);
+        }
+
     }
 }
 

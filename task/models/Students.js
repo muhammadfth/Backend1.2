@@ -18,26 +18,85 @@ class Student {
   * Method menerima parameter data yang akan diinsert.
   * Method mengembalikan data student yang baru diinsert.
   */
-    static create(Student) {
+    // static create(Student) {
+    //     return new Promise((resolve, reject) => {
+    //         const query = "INSERT INTO students SET ?";
+    //         db.query(query, Student, (err, results) => {
+    //             resolve(this.show(results.insertId));
+    //         });
+    //     });
+    // }
+
+    // static show(id) {
+    //     return new Promise((resolve, reject) => {
+    //         const sql = `SELECT * FROM students WHERE id = ${id} `;
+    //         db.query(sql, (err, results) => {
+    //             resolve(results);
+    //         });
+    //     });
+    // }
+
+       // promise 1 melakukan insert ke database    
+        static async create(Student) {
+            const id = await new Promise((resolve, reject) => {
+                const sql = "INSERT INTO students SET ?";
+                db.query(sql, Student, (err, results) => {
+                    resolve(results.insertId);
+                });
+        });
+
+
+        // promise 2 : get data by id
+        const student = this.find(id);
+        return student;
+        // return new Promise((resolve, reject) => {
+        //     const sql = `SELECT * FROM students WHERE id = ?`;
+        //     db.query(sql, id, (err, results) => {
+        //         resolve(results);
+        //     });
+        // });
+    }
+
+
+    static find(id) {
+        // lakukan promise, select by id
         return new Promise((resolve, reject) => {
-            const query = "INSERT INTO students SET ?";
-            db.query(query, Student, (err, results) => {
-                resolve(this.show(results.insertId));
+            const sql = `SELECT * FROM students WHERE id = ?`;
+            db.query(sql, id, (err, results) => {
+                resolve(results[0]);
             });
         });
     }
 
-    static show(id) {
+    static async update(id, data) {
+        // update data
+        await new Promise((resolve, reject) => {
+            // query untuk update data
+            const sql = "UPDATE students SET ? WHERE id = ?";
+            db.query(sql, [data, id], (err, results) => {
+                resolve(results);
+            });
+        });
+
+        // select data by id
+        const student = await this.find(id);
+        return student;
+    }
+
+    static async delete(id) {
+        // query delete
         return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM students WHERE id = ${id} `;
-            db.query(sql, (err, results) => {
+            // query sql
+            const sql = "DELETE FROM students WHERE id = ?";
+            db.query(sql, id, (err, results) => {
                 resolve(results);
             });
         });
     }
 
-
 }
+
+
 
 
 // export model
